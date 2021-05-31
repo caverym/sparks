@@ -1,6 +1,6 @@
 use std::fmt::Formatter;
 
-pub enum Token<> {
+pub enum Token {
     Bot(String),
     User(String),
     None,

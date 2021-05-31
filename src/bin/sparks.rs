@@ -1,13 +1,9 @@
-use sparks::{
-    Bot,
-    error::Error,
-    token::Token,
-};
 use discord::model::{Event, Message, UserId};
+use sparks::{error::Error, token::Token, Bot};
 
 fn get_token() -> Result<Token, Error> {
-    use std::io::Read;
     use std::fs::File;
+    use std::io::Read;
     let mut file: File = File::open("token")?;
     let mut buf: Vec<u8> = Vec::new();
     file.read_to_end(&mut buf)?;
@@ -27,7 +23,7 @@ fn matcher(sparks: &mut Bot, event: Event) -> Result<(), Error> {
         Event::Ready(r) => {
             println!("Ready!\n{:#?}", r);
             sparks.ready_event = r;
-        },
+        }
         Event::MessageCreate(m) => message(sparks, m)?,
         _ => (),
     }
@@ -59,16 +55,22 @@ fn message(sparks: &mut Bot, message: Message) -> Result<(), Error> {
 fn sysinfo(sparks: &mut Bot, message: &Message) -> Result<(), Error> {
     use uname_rs::*;
     let uts: Uname = Uname::new()?;
-    sparks.handle.send_message(message.channel_id, &uts.release, "", false)?;
+    sparks
+        .handle
+        .send_message(message.channel_id, &uts.release, "", false)?;
     Ok(())
 }
 
 fn help(sparks: &mut Bot, message: &Message) -> Result<(), Error> {
-    sparks.handle.send_message(message.channel_id, "You get no help", "", false)?;
+    sparks
+        .handle
+        .send_message(message.channel_id, "You get no help", "", false)?;
     Ok(())
 }
 
 fn bee(sparks: &mut Bot, message: &Message) -> Result<(), Error> {
-    sparks.handle.send_message(message.channel_id, "🐝", "", false)?;
+    sparks
+        .handle
+        .send_message(message.channel_id, "🐝", "", false)?;
     Ok(())
 }
