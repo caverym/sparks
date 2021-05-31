@@ -4,8 +4,9 @@ pub mod token;
 use error::Error;
 use token::Token;
 
-use discord::model::{Event, Message, ReadyEvent};
+use discord::model::{ChannelId, Event, Game, Message, OnlineStatus, ReadyEvent};
 use discord::{Connection, Discord};
+use std::fmt::Arguments;
 
 pub struct Bot {
     token: String,
@@ -30,12 +31,16 @@ impl Bot {
 
     pub fn run<F: Fn(&mut Bot, Event) -> Result<(), Error>>(
         &mut self,
-        matcher: F,
+        f: F,
     ) -> Result<Event, Error> {
         loop {
             let env: Event = self.connection.recv_event()?;
-            matcher(self, env)?;
+            f(self, env)?;
         }
+    }
+
+    pub fn set_presence(&mut self, game: Option<Game>, status: OnlineStatus, afk: bool) {
+        self.connection.set_presence(game, status, afk)
     }
 
     pub fn command<F: Fn(&mut Bot, &Message) -> Result<(), Error>>(
@@ -50,6 +55,3 @@ impl Bot {
         drop(self)
     }
 }
-
-#[cfg(test)]
-mod tests {}
