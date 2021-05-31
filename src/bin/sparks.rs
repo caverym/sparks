@@ -5,8 +5,6 @@ use sparks::{
 };
 use discord::model::{Event, Message, UserId};
 
-static AVERY: UserId = UserId(460132508202172426);
-
 fn get_token() -> Result<Token, Error> {
     use std::io::Read;
     use std::fs::File;
