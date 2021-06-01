@@ -56,7 +56,13 @@ fn sysinfo(sparks: &mut Bot, message: &Message) -> Result<(), Error> {
     use uname_rs::*;
     let uts: Uname = Uname::new()?;
 
-    sparks.send_message(message.channel_id, format!("{} {} {} {} {}", uts.sysname, uts.nodename, uts.release, uts.version, uts.machine))?;
+    sparks.send_message(
+        message.channel_id,
+        format!(
+            "{} {} {} {} {}",
+            uts.sysname, uts.nodename, uts.release, uts.version, uts.machine
+        ),
+    )?;
 
     Ok(())
 }
