@@ -45,7 +45,6 @@ fn message(sparks: &mut Bot, message: Message) -> Result<(), Error> {
         "s!sysinfo" => sparks.command(sysinfo, &message)?,
         "s!avatar" => sparks.command(avatar, &message)?,
         "s!flip" => sparks.command(flip, &message)?,
-        "s!blow" => sparks.command(blow, &message)?,
         _ => {}
     }
 
