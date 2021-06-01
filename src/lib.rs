@@ -43,6 +43,11 @@ impl Bot {
         self.connection.set_presence(game, status, afk)
     }
 
+    pub fn send_message<T: ToString>(&mut self, channel_id: ChannelId, message: T) -> Result<(), Error> {
+        self.handle.send_message(channel_id, message.to_string().as_str(), "", false)?;
+        Ok(())
+    }
+
     pub fn command<F: Fn(&mut Bot, &Message) -> Result<(), Error>>(
         &mut self,
         f: F,

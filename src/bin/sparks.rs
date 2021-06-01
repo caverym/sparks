@@ -56,15 +56,8 @@ fn sysinfo(sparks: &mut Bot, message: &Message) -> Result<(), Error> {
     use uname_rs::*;
     let uts: Uname = Uname::new()?;
 
-    sparks.handle.send_message(
-        message.channel_id,
-        &format!(
-            "{} {} {} {} {}",
-            uts.sysname, uts.nodename, uts.release, uts.version, uts.machine
-        ),
-        "",
-        false,
-    )?;
+    sparks.send_message(message.channel_id, format!("{} {} {} {} {}", uts.sysname, uts.nodename, uts.release, uts.version, uts.machine))?;
+
     Ok(())
 }
 
@@ -80,9 +73,7 @@ fn sysinfo(sparks: &mut Bot, message: &Message) -> Result<(), Error> {
 }
 
 fn help(sparks: &mut Bot, message: &Message) -> Result<(), Error> {
-    sparks
-        .handle
-        .send_message(message.channel_id, "You get no help", "", false)?;
+    sparks.send_message(message.channel_id, "You get no help")?;
     Ok(())
 }
 
@@ -100,9 +91,7 @@ fn avatar(sparks: &mut Bot, message: &Message) -> Result<(), Error> {
         let url: String = user
             .avatar_url()
             .unwrap_or(format!("can't get {}'s avatar", user.name));
-        sparks
-            .handle
-            .send_message(message.channel_id, &url, "", false)?;
+        sparks.send_message(message.channel_id, url)?;
     }
 
     Ok(())
@@ -111,8 +100,6 @@ fn avatar(sparks: &mut Bot, message: &Message) -> Result<(), Error> {
 fn flip(sparks: &mut Bot, message: &Message) -> Result<(), Error> {
     let num: u8 = rand::random::<u8>() % 2;
     let coin: &str = if num == 0 { "heads" } else { "tails" };
-    sparks
-        .handle
-        .send_message(message.channel_id, coin, "", false)?;
+    sparks.send_message(message.channel_id, coin)?;
     Ok(())
 }
