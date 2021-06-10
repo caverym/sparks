@@ -3,12 +3,6 @@ use std::fmt::Formatter;
 #[derive(Debug)]
 pub struct Error(String);
 
-impl Error {
-    fn new<T: ToString>(error: T) -> Error {
-        Error(error.to_string())
-    }
-}
-
 impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.0)

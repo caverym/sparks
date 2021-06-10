@@ -4,15 +4,15 @@ pub mod token;
 use error::Error;
 use token::Token;
 
-use discord::model::{ChannelId, Event, Game, Message, OnlineStatus, ReadyEvent};
+use discord::model::{ChannelId, Event, Game, Message, OnlineStatus, ReadyEvent, UserId};
 use discord::{Connection, Discord};
-use std::fmt::Arguments;
 
 pub struct Bot {
-    token: String,
     pub handle: Discord,
     pub connection: Connection,
     pub ready_event: ReadyEvent,
+
+    pub owner: Option<UserId>,
 }
 
 impl Bot {
@@ -22,11 +22,24 @@ impl Bot {
         let (connection, ready_event) = handle.connect()?;
 
         Ok(Bot {
-            token,
             handle,
             connection,
             ready_event,
+            owner: None,
         })
+    }
+
+    pub fn register_owner<T: ToString>(&mut self, id: T) -> Option<UserId> {
+        let id: String = id.to_string();
+        let mut owner: Option<UserId> = None;
+        if let Some(val) = id.parse().ok() {
+            owner = Some(UserId(val));
+        } else {
+            return None;
+        }
+
+        self.owner = owner.to_owned();
+        owner
     }
 
     pub fn run<F: Fn(&mut Bot, Event) -> Result<(), Error>>(

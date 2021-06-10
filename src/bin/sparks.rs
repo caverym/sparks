@@ -1,17 +1,34 @@
-use discord::model::{Event, Game, Message, OnlineStatus, User, UserId};
+use discord::model::{
+    ChannelId, Event, Game, Member, Message, OnlineStatus, PossibleServer, ServerId, User,
+};
 use sparks::{error::Error, token::Token, Bot};
+use std::io::{Read, Seek};
 
-fn main() -> Result<(), Error> {
-    fn get_token() -> Result<Token, Error> {
+fn main() {
+    use std::process::exit;
+    if let Err(e) = sparks() {
+        eprintln!("{}", e);
+        exit(1);
+    }
+}
+
+fn sparks() -> Result<(), Error> {
+    fn get(p: &str) -> Result<String, Error> {
         use std::fs::File;
         use std::io::Read;
-        let mut file: File = File::open("token")?;
+        let mut file: File = File::open(p)?;
         let mut buf: Vec<u8> = Vec::new();
         file.read_to_end(&mut buf)?;
         let string: String = String::from_utf8(buf)?;
-        Ok(Token::new("bot", string))
+        Ok(string)
     }
-    let mut sparks: Bot = Bot::connect(get_token()?)?;
+
+    let token: String = get("token")?;
+    let owner: String = get("owner")?;
+
+    let mut sparks: Bot = Bot::connect(Token::new("bot", token))?;
+
+    sparks.register_owner(owner);
 
     sparks.set_presence(
         Some(Game::playing("rustc".to_string())),
@@ -29,6 +46,7 @@ fn main() -> Result<(), Error> {
 fn matcher(sparks: &mut Bot, event: Event) -> Result<(), Error> {
     match event {
         Event::MessageCreate(m) => message(sparks, m)?,
+        Event::Unknown(string, object) => println!("unknown! {}\n{:#?}", string, object),
         _ => (),
     }
     Ok(())
@@ -39,42 +57,29 @@ fn message(sparks: &mut Bot, message: Message) -> Result<(), Error> {
         return Ok(());
     }
 
+    println!(
+        "message sent by {} in {} at {}",
+        message.author.name, message.channel_id, message.timestamp
+    );
+
     let content: Vec<&str> = message.content.split(' ').collect();
     match content[0] {
         "s!help" => sparks.command(help, &message)?,
-        "s!sysinfo" => sparks.command(sysinfo, &message)?,
         "s!avatar" => sparks.command(avatar, &message)?,
         "s!flip" => sparks.command(flip, &message)?,
+        "s!info" => sparks.command(info, &message)?,
         _ => {}
     }
 
     Ok(())
 }
 
-#[cfg(unix)]
-fn sysinfo(sparks: &mut Bot, message: &Message) -> Result<(), Error> {
-    use uname_rs::*;
-    let uts: Uname = Uname::new()?;
-
-    sparks.send_message(
-        message.channel_id,
-        format!(
-            "{} {} {} {} {}",
-            uts.sysname, uts.nodename, uts.release, uts.version, uts.machine
-        ),
-    )?;
-
-    Ok(())
-}
-
-#[cfg(windows)]
-fn sysinfo(sparks: &mut Bot, message: &Message) -> Result<(), Error> {
-    use uname_rs::*;
-    let uts: Uname = Uname::new()?;
-
-    sparks
-        .handle
-        .send_message(message.channel_id, "binbows", "", false)?;
+fn info(sparks: &mut Bot, message: &Message) -> Result<(), Error> {
+    if let Some(owner) = sparks.owner {
+        sparks.send_message(message.channel_id, format!("ask <@{}>", owner))?;
+    } else {
+        sparks.send_message(message.channel_id, "I really have nothing to say")?;
+    }
     Ok(())
 }
 
